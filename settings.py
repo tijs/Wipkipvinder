@@ -1,4 +1,4 @@
-# Django settings for play project.
+# Django settings for wipkipvinder project.
 import os.path, sys
 
 DEBUG = True
@@ -57,9 +57,6 @@ MEDIA_URL = '/public/'
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
 ADMIN_MEDIA_PREFIX = '/media/'
-
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = 'b6b!si6obfgmm)v5#pd$*56m#*)08txk8(^1!k7$gx6zx#=0u%'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
