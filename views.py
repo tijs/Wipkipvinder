@@ -7,3 +7,6 @@ def index(request):
     
 def themap(request):
   return render_to_response('themap.html', {  }, context_instance=RequestContext(request))
+
+def about(request):
+  return render_to_response('about.html', {  }, context_instance=RequestContext(request))

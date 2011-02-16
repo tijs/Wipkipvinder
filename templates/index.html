@@ -2,143 +2,153 @@
 <html lang="en-US">
 <head>
 	<meta charset="UTF-8">
-	<title>Main Page</title>
+	<title>De Wipkipvinder</title>
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a1/jquery.mobile-1.0a1.min.css" />
 	<script src="http://code.jquery.com/jquery-1.4.3.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.0a1/jquery.mobile-1.0a1.min.js"></script>
 </head>
 <body>
 	<div data-role="page" class="page-main">
-		<div data-role="header"><h1>Main Page</h1></div>
+		<div data-role="header"><h1>Speeltoestellen in de buurt</h1> <a href="about" data-role="button">info</a></div>
 		<div data-role="content">
-		    <p><a href="themap">See on a Map</a></p>
-		    <div id="mylist"><p id="loader">Loading data...</p></div>
+		    <p>Nu alleen nog in Rotterdam...</p>
+		    <a href="themap" data-role="button">Toon op een kaart</a>
+		    <div id="mylist"><p id="loader">Data aan het laden...</p></div>
 		</div>
 	</div>
     <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script> 
 	<script type="text/javascript">
-	
-    	// The index page
-    	$('.page-main').live("pagecreate", function() {
-    		if(navigator.geolocation) {
-    			navigator.geolocation.getCurrentPosition(function(position){
-    				get_list(position.coords.latitude,position.coords.longitude);
-    			});
-    		}
-    	});
-    	
-        var toestellen = [];
-        
-        function calculateDistance(lat1, lng1, lat2, lng2) {
-           // setup our variables
-           var radianLat1 = lat1 * ( Math.PI  / 180 );
-           var radianLng1 = lng1 * ( Math.PI  / 180 );
-           var radianLat2 = lat2 * ( Math.PI  / 180 );
-           var radianLng2 = lng2 * ( Math.PI  / 180 );
-           // sort out the radius, MILES or KM?
-           var earth_radius = 6378.1; // (km = 6378.1) OR (miles = 3959) - radius of the earth
-
-           // sort our the differences
-           var diffLat =  ( radianLat1 - radianLat2 );
-           var diffLng =  ( radianLng1 - radianLng2 );
-           // put on a wave (hey the earth is round after all)
-           var sinLat = Math.sin( diffLat / 2  );
-           var sinLng = Math.sin( diffLng / 2  ); 
-
-           // maths - borrowed from http://www.opensourceconnections.com/wp-content/uploads/2009/02/clientsidehaversinecalculation.html
-           var a = Math.pow(sinLat, 2.0) + Math.cos(radianLat1) * Math.cos(radianLat2) * Math.pow(sinLng, 2.0);
-
-           // work out the distance
-           var distance = earth_radius * 2 * Math.asin(Math.min(1, Math.sqrt(a)));
- 
-           // return the distance
-           return distance;
-        }
-        
-        function sortDistance(a,b){
-            return a.distance > b.distance ? 1 : -1;
-        };
-
-    	function get_list(lat,lon) {
-    	        	    
-    	    $.getJSON('public/wgs84.speeltoestellen.geojson', function(data) {
-
-                $.each(data.features, function(key, val) {
-
-                    coords = val.geometry.coordinates;
-                
-                    var item_lat = coords[0];
-                    var item_lon = coords[1];
-                
-                    if (!lat, !lon, !item_lat, !item_lon) {
-                        return false;
-                    }
-                
-                    var distance = calculateDistance(lat, lon, item_lat, item_lon);
-                    if (distance) {
- 
-                        var toestel = new Object()
-                         toestel.id = val.properties["ID_TOESTEL"];
-                         toestel.name = val.properties["TYPE"];
-                         toestel.park = val.properties["TYPE"];
-                         toestel.coordinates = val.geometry.coordinates;
-                         toestel.distance = distance;
-
-                         toestellen.push(toestel);
-
-                    
-                     }
-                 });
-
-                 toestellen.sort(sortDistance);
-                 var items = [];
-
-                 $.each(toestellen, function(key, val) {
-                   var km = val.distance.toFixed(2);
-                   items.push('<li id="' + val.id + '">' + val.name + '('+ km +'km) in </li>');
-                 });
-                 
-                 $('#loader').hide();
-                
-                 $('<ul/>', {
-                    'class': 'my-new-list',
-                    html: items.join('')
-                 }).appendTo('#mylist');
+    // The index page
+    $('.page-main').live("pagecreate",
+    function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                get_list(position.coords.latitude, position.coords.longitude);
             });
-    	}
-    	
+        }
+    });
 
-		// When map page opens get location and display map
-		$('.page-map').live("pagecreate", function() {
-			if(navigator.geolocation) {
-				navigator.geolocation.getCurrentPosition(function(position){
-					initialize(position.coords.latitude,position.coords.longitude);
-				});
-			}
-		});
-		
-		function initialize(lat,lng) {
-			var latlng = new google.maps.LatLng(lat, lng);
-			var myOptions = {
-				zoom: 8,
-				center: latlng,
-				mapTypeId: google.maps.MapTypeId.ROADMAP
-		    };
-		    var map = new google.maps.Map(document.getElementById("map_canvas"),myOptions);
-		    
-		    console.log(toestellen);
-		    
-		    $.each(toestellen, function(i, item){
-				$("#markers").append('<li><a href="#" rel="' + i + '">' + item.name + '</a></li>');
-				var marker = new google.maps.Marker({
-					position: new google.maps.LatLng(item.coordinates[0], item.coordinates[1]),
-					map: map,
-					title: item.name
-				});
-				//arrMarkers[i] = marker;
-			});
-		    
-		}
+    var toestellen = [];
+
+    function calculateDistance(lat1, lng1, lat2, lng2) {
+        // setup our variables
+        var radianLat1 = lat1 * (Math.PI / 180);
+        var radianLng1 = lng1 * (Math.PI / 180);
+        var radianLat2 = lat2 * (Math.PI / 180);
+        var radianLng2 = lng2 * (Math.PI / 180);
+        // sort out the radius, MILES or KM?
+        var earth_radius = 6378.1;
+        // (km = 6378.1) OR (miles = 3959) - radius of the earth
+        // sort our the differences
+        var diffLat = (radianLat1 - radianLat2);
+        var diffLng = (radianLng1 - radianLng2);
+        // put on a wave (hey the earth is round after all)
+        var sinLat = Math.sin(diffLat / 2);
+        var sinLng = Math.sin(diffLng / 2);
+
+        // maths - borrowed from http://www.opensourceconnections.com/wp-content/uploads/2009/02/clientsidehaversinecalculation.html
+        var a = Math.pow(sinLat, 2.0) + Math.cos(radianLat1) * Math.cos(radianLat2) * Math.pow(sinLng, 2.0);
+
+        // work out the distance
+        var distance = earth_radius * 2 * Math.asin(Math.min(1, Math.sqrt(a)));
+
+        // return the distance
+        return distance;
+    }
+
+    function sortDistance(a, b) {
+        return a.distance > b.distance ? 1: -1;
+    };
+
+    function get_list(lat, lon) {
+
+        $.getJSON('public/wgs84.speeltoestellen.geojson',
+        function(data) {
+
+            $.each(data.features,
+            function(key, val) {
+
+                coords = val.geometry.coordinates;
+
+                var item_lat = coords[0];
+                var item_lon = coords[1];
+
+                if (!lat, !lon, !item_lat, !item_lon) {
+                    return false;
+                }
+
+                var distance = calculateDistance(lat, lon, item_lat, item_lon);
+                if (distance) {
+
+                    var toestel = new Object()
+                    toestel.id = val.properties["ID_TOESTEL"];
+                    toestel.name = val.properties["TYPE"];
+                    toestel.park = val.properties["TYPE"];
+                    toestel.coordinates = val.geometry.coordinates;
+                    toestel.distance = distance;
+
+                    toestellen.push(toestel);
+
+                }
+            });
+
+            toestellen.sort(sortDistance);
+            var items = [];
+            var counter = 0;
+            var max = 25;
+            
+            $.each(toestellen,
+            function(key, val) {
+                if (counter < max) {
+                    var km = val.distance.toFixed(2);
+                    items.push('<li id="' + val.id + '">' + val.name + '(' + km + 'km)</li>');
+                    counter++;
+                }
+            });
+
+            $('#loader').hide();
+
+            $('<ol/>', {
+                'class': 'my-new-list',
+                html: items.join('')
+            }).appendTo('#mylist');
+        });
+    }
+
+
+    // When map page opens get location and display map
+    $('.page-map').live("pagecreate",
+    function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                initialize(position.coords.latitude, position.coords.longitude);
+            });
+        }
+    });
+
+    function initialize(lat, lng) {
+        var latlng = new google.maps.LatLng(lat, lng);
+        var myOptions = {
+            zoom: 8,
+            center: latlng,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+
+        console.log(toestellen);
+
+        $.each(toestellen,
+        function(i, item) {
+            $("#markers").append('<li><a href="#" rel="' + i + '">' + item.name + '</a></li>');
+            var marker = new google.maps.Marker({
+                position: new google.maps.LatLng(item.coordinates[0], item.coordinates[1]),
+                map: map,
+                title: item.name
+            });
+            //arrMarkers[i] = marker;
+        });
+
+    }
 	</script>
 </body>
 </html>
