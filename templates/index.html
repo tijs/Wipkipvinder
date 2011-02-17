@@ -9,7 +9,7 @@
 </head>
 <body>
 	<div data-role="page" class="page-main">
-		<div data-role="header"><h1>Speeltoestellen in de buurt</h1> <a href="themap" data-role="button">toon op een kaart</a> <a href="about" data-role="button" class="ui-btn-right">info</a></div>
+		<div data-role="header"><h1>Speeltoestellen in de buurt</h1> <a href="/themap" data-role="button">toon op een kaart</a> <a href="/about" data-role="button" class="ui-btn-right">info</a></div>
 		<div data-role="content" id="mylist">
 		    <p id="loader">Even geduld a.u.b....</p>
 		</div>
@@ -103,7 +103,7 @@
             $.each(toestellen, function(key, val) {
                 if (counter < max) {
                     var km = val.distance.toFixed(2);
-                    items.push('<li id="' + val.id + '"><a href="themap#'+ val.id +'">' + val.name + '</a> <span class="ui-li-count">' + km + ' km</span></li>');
+                    items.push('<li id="' + val.id + '"><a href="/themap">' + val.name + '</a> <span class="ui-li-count">' + km + ' km</span></li>');
                     counter++;
                 }
             });
