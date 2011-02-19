@@ -22,7 +22,7 @@
 </head>
 <body>
 	<div data-role="page" class="page-main">
-		<div data-role="header"><h1>Speeltoestellen in de buurt</h1> <a href="/themap" data-role="button">toon op een kaart</a> <a href="/about" data-role="button" class="ui-btn-right">info</a></div>
+		<div data-role="header"><a href="/about" data-role="button" >info</a> <h1>Wipkipvinder</h1> <a href="/themap" data-role="button" class="ui-btn-right">kaart</a></div>
 		<div data-role="content" id="mylist">
 		    <p id="loader">Even geduld a.u.b....</p>
 		</div>
@@ -106,19 +106,14 @@
             toestellen.sort(sortDistance);
             
             var items = [];
-            var counter = 0;
-            var max = 25;
  
             // first a list divider
             items.push('<li data-role="list-divider">Rotterdam</li>');
                                 
             // then the list items
             $.each(toestellen, function(key, val) {
-                if (counter < max) {
-                    var km = val.distance.toFixed(2);
-                    items.push('<li id="' + val.id + '"><a href="/themap">' + val.name + '</a> <span class="ui-li-count">' + km + ' km</span></li>');
-                    counter++;
-                }
+                var km = val.distance.toFixed(2);
+                items.push('<li id="' + val.id + '"><a href="/themap">' + val.name + '</a> <span class="ui-li-count">' + km + ' km</span></li>');
             });
 
             $('#loader').hide();
