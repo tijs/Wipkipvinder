@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en-US">
+<html lang="nl">
 <head>
 	<meta charset="UTF-8">
 	<title>De Wipkipvinder</title>
@@ -73,7 +73,7 @@
 
     function get_list(lat, lon) {
 
-        $.getJSON('public/wgs84.speeltoestellen.geojson',
+        $.getJSON('/public/wgs84.speeltoestellen.geojson',
         function(data) {
 
             $.each(data.features,
