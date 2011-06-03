@@ -1,5 +1,20 @@
 # Django settings for wipkipvinder project.
 import os.path, sys
+sys.path.append('lib')
+
+PROJECT_ROOT = os.path.dirname(__file__)
+MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media')
+MEDIA_URL = '/media/'
+STATIC_URL = '/static/'
+ADMIN_MEDIA_PREFIX = '/static/admin/'
+
+STATICFILES_DIRS = (
+    os.path.join(PROJECT_ROOT, 'static'),
+)
+
+TEMPLATE_DIRS = (
+  os.path.join(PROJECT_ROOT, 'templates'),
+)
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -9,17 +24,6 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
-
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-#        'NAME': '',                      # Or path to database file if using sqlite3.
-#        'USER': '',                      # Not used with sqlite3.
-#        'PASSWORD': '',                  # Not used with sqlite3.
-#        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-#        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-#    }
-#}
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -32,7 +36,7 @@ TIME_ZONE = 'Europe/Amsterdam'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'nl-NL'
 
 SITE_ID = 1
 
@@ -43,20 +47,6 @@ USE_I18N = True
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale
 USE_L10N = True
-
-SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-MEDIA_ROOT = os.path.join(SITE_ROOT, 'public')
-TEMPLATE_DIRS = ( os.path.join(SITE_ROOT, 'templates'),)
-
-# URL that handles the media served from MEDIA_ROOT. Make sure to use a
-# trailing slash if there is a path component (optional in other cases).
-# Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = '/public/'
-
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-# trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -69,20 +59,43 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    #'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
 
 INSTALLED_APPS = (
-    #'django.contrib.auth',
+    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
-    # Uncomment the next line to enable the admin:
-    # 'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
+    'django.contrib.admin',
+    'playthings',
+    'south',
 )
+
+# Mapping city JSON format to local DB fields
+# 3 cheers for old-skool DB field names (do i hear an Oracle?)
+MAPPING = {
+    'Den Haag' : {
+        'ref' : 'MSLINK',
+        'neighbourhood' : 'STADSDEEL',
+        'street' : 'STRAATNAAM',
+        'category' : 'TOESTELGRO',
+        'type' : 'NAAM',
+    },
+    'Rotterdam' : {
+        'ref' : 'ID_TOESTEL',
+        'neighbourhood' : 'BUURTNAAM',
+        'street' : 'STRAATNAAM',
+        'category' : 'SOORT',
+        'type' : 'TYPE',
+    }
+}
+
+try:
+   from local_settings import *
+except ImportError:
+   pass
