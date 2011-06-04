@@ -3,12 +3,51 @@
 <head>
 	<meta charset="UTF-8">
 	<title>De Wipkipvinder</title>
+    <script type="text/javascript">
+      WebFontConfig = {
+        google: { families: [ 'News Cycle', 'Carter One' ] }
+      };
+      (function() {
+        var wf = document.createElement('script');
+        wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+            '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+        wf.type = 'text/javascript';
+        wf.async = 'true';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(wf, s);
+      })();
+    </script>
+    <style>
 
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.css" />
-    <script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
-    <script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script>
+        body { background: #b9e4ec; height: 700px; font-size: 1.1em; }
 
-	<script type="text/javascript">
+        h1 { font-size: 400%; font-family: 'Carter One', arial, serif; color: #b5510e; }
+        p { font-size: 120%; font-family: 'News Cycle', arial, serif; color: #000033; line-height: 26px; text-shadow: 0 2px 1px white; }
+        p strong { text-shadow: none; }
+        p small { font-size: 90%; text-shadow: none; }
+        a { color: #3474c2; }
+
+        #main { width: 900px; margin: 40px auto; padding: 50px; border-radius: 10px; background: #e2f0ef url(/public/img/clouds.png) repeat-x 0 bottom; }
+        #android { float: right; margin: 10px; }
+
+    </style>
+</head>
+<body>
+	<div id="main">
+        <img src="/public/img/android-phone.png" id="android" alt="wipkipvinder running on android" />
+        <h1>Wipkipvinder</h1>
+        <p>De <em>wipkipvinder</em> is een mobiele web app om de dichtsbijzijnde wipkip, schommel of glijbaan te vinden.
+            Op dit moment alleen nog in in Den Haag en Rotterdam maar hopelijk binnenkort ook elders.</p>
+        <p><strong>Als je deze pagina ziet bezoek je de site waarschijnlijk niet op een mobiele telefoon.
+            <a href="/play">Klik hier om de mobiele site alsnog te bekijken</a>.</strong></p>
+
+        <p><small>Dit is een uit de hand gelopen project van Tijs Teulings (van
+        <a href="http://automatique.nl">Automatique</a>) en is begonnen als voorbeeld app van wat je met
+        <a href="https://twitter.com/#!/search/%23opendata">#opendata</a> kunt doen. Alle broncode voor dit project is
+        open-source: <a href="http://github.com/tijs/Wipkipvinder">github.com/tijs/Wipkipvinder</a></small></p>
+        <br style="clear: both">
+    </div>
+    <script type="text/javascript">
 
       var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-90387-17']);
@@ -19,155 +58,7 @@
         ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
       })();
-
     </script>
-</head>
-<body>
-	<div data-role="page" class="page-main">
-		<div data-role="header"><a href="/about" data-role="button" >info</a> <h1>Wipkipvinder</h1> <a href="/themap" data-role="button" class="ui-btn-right">kaart</a></div>
-		<div data-role="content" id="mylist">
-		    <p id="loader">Even geduld a.u.b....</p>
-		</div>
-	</div>
-    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script> 
-	<script type="text/javascript">
 
-    var toestellen = [];
-
-    // The index page
-    $(document).ready(function () {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                get_list(position.coords.latitude, position.coords.longitude);
-            });
-        }
-    });
-
-    function calculateDistance(lat1, lng1, lat2, lng2) {
-        // setup our variables
-        var radianLat1 = lat1 * (Math.PI / 180);
-        var radianLng1 = lng1 * (Math.PI / 180);
-        var radianLat2 = lat2 * (Math.PI / 180);
-        var radianLng2 = lng2 * (Math.PI / 180);
-        // sort out the radius, MILES or KM?
-        var earth_radius = 6378.1;
-        // (km = 6378.1) OR (miles = 3959) - radius of the earth
-        // sort our the differences
-        var diffLat = (radianLat1 - radianLat2);
-        var diffLng = (radianLng1 - radianLng2);
-        // put on a wave (hey the earth is round after all)
-        var sinLat = Math.sin(diffLat / 2);
-        var sinLng = Math.sin(diffLng / 2);
-
-        // maths - borrowed from http://www.opensourceconnections.com/wp-content/uploads/2009/02/clientsidehaversinecalculation.html
-        var a = Math.pow(sinLat, 2.0) + Math.cos(radianLat1) * Math.cos(radianLat2) * Math.pow(sinLng, 2.0);
-
-        // work out the distance
-        var distance = earth_radius * 2 * Math.asin(Math.min(1, Math.sqrt(a)));
-
-        // return the distance
-        return distance;
-    }
-
-    function sortDistance(a, b) {
-        return a.distance > b.distance ? 1: -1;
-    };
-
-    function get_list(lat, lon) {
-
-        $.getJSON('/public/wgs84.speeltoestellen.geojson',
-        function(data) {
-
-            $.each(data.features,
-            function(key, val) {
-
-                coords = val.geometry.coordinates;
-
-                var item_lat = coords[0];
-                var item_lon = coords[1];
-
-                if (!lat, !lon, !item_lat, !item_lon) {
-                    return false;
-                }
-
-                var distance = calculateDistance(lat, lon, item_lat, item_lon);
-                if (distance) {
-
-                    var toestel = new Object()
-                    toestel.id = val.properties["ID_TOESTEL"];
-                    toestel.name = val.properties["TYPE"];
-                    toestel.park = val.properties["TYPE"];
-                    toestel.coordinates = val.geometry.coordinates;
-                    toestel.distance = distance;
-
-                    toestellen.push(toestel);
-
-                }
-            });
-
-            toestellen.sort(sortDistance);
-            
-            var items = [];
- 
-            // first a list divider
-            items.push('<li data-role="list-divider">Rotterdam</li>');
-                                
-            // then the list items
-            $.each(toestellen, function(key, val) {
-                var km = val.distance.toFixed(2);
-                items.push('<li id="' + val.id + '"><a href="/themap">' + val.name + '</a> <span class="ui-li-count">' + km + ' km</span></li>');
-            });
-
-            $('#loader').hide();
-
-            // attach the items to the page
-            $('<ul/>', {
-                'class': 'toestellen',
-                'data-role': 'listview',
-                'data-inset': 'true',
-                html: items.join('')
-            }).appendTo('#mylist');
-            
-            
-            // and then refresh the page
-            $('.page-main').page('destroy').page();
-            //$('.page-main').page();
-        });
-    }
-
-
-    // When map page opens get location and display map
-    $('.page-map').live("pagecreate",
-    function() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                initialize(position.coords.latitude, position.coords.longitude);
-            });
-        }
-    });
-
-    function initialize(lat, lng) {
-        var latlng = new google.maps.LatLng(lat, lng);
-        var myOptions = {
-            zoom: 8,
-            center: latlng,
-            mapTypeId: google.maps.MapTypeId.ROADMAP
-        };
-        var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-
-        //console.log(toestellen);
-
-        $.each(toestellen,
-        function(i, item) {
-            $("#markers").append('<li><a href="#" rel="' + i + '">' + item.name + '</a></li>');
-            var marker = new google.maps.Marker({
-                position: new google.maps.LatLng(item.coordinates[0], item.coordinates[1]),
-                map: map,
-                title: item.name
-            });
-        });
-
-    }
-	</script>
 </body>
 </html>
