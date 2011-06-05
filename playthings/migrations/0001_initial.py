@@ -32,20 +32,44 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('playthings', ['Hood'])
 
+        # Adding model 'Category'
+        db.create_table('playthings_category', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=50)),
+        ))
+        db.send_create_signal('playthings', ['Category'])
+
+        # Adding model 'Type'
+        db.create_table('playthings_type', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=50)),
+            ('category', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['playthings.Category'], null=True)),
+        ))
+        db.send_create_signal('playthings', ['Type'])
+
         # Adding model 'Plaything'
         db.create_table('playthings_plaything', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('type', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['playthings.Type'])),
+            ('reference', self.gf('django.db.models.fields.CharField')(max_length=20, null=True)),
             ('lat', self.gf('django.db.models.fields.DecimalField')(max_digits=16, decimal_places=12)),
             ('lng', self.gf('django.db.models.fields.DecimalField')(max_digits=16, decimal_places=12)),
             ('address', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('neighbourhood', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['playthings.Hood'])),
+            ('city', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['playthings.City'], null=True)),
+            ('last_updated', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2011, 6, 5, 15, 7, 58, 131791), auto_now_add=True, blank=True)),
         ))
         db.send_create_signal('playthings', ['Plaything'])
+
+        # Adding unique constraint on 'Plaything', fields ['reference', 'city']
+        db.create_unique('playthings_plaything', ['reference', 'city_id'])
 
 
     def backwards(self, orm):
         
+        # Removing unique constraint on 'Plaything', fields ['reference', 'city']
+        db.delete_unique('playthings_plaything', ['reference', 'city_id'])
+
         # Deleting model 'Country'
         db.delete_table('playthings_country')
 
@@ -55,11 +79,22 @@ class Migration(SchemaMigration):
         # Deleting model 'Hood'
         db.delete_table('playthings_hood')
 
+        # Deleting model 'Category'
+        db.delete_table('playthings_category')
+
+        # Deleting model 'Type'
+        db.delete_table('playthings_type')
+
         # Deleting model 'Plaything'
         db.delete_table('playthings_plaything')
 
 
     models = {
+        'playthings.category': {
+            'Meta': {'ordering': "['name']", 'object_name': 'Category'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
+        },
         'playthings.city': {
             'Meta': {'ordering': "['name']", 'object_name': 'City'},
             'country': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['playthings.Country']"}),
@@ -79,13 +114,22 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
         },
         'playthings.plaything': {
-            'Meta': {'ordering': "['neighbourhood', 'type']", 'object_name': 'Plaything'},
+            'Meta': {'ordering': "['neighbourhood', 'type']", 'unique_together': "(('reference', 'city'),)", 'object_name': 'Plaything'},
             'address': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'city': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['playthings.City']", 'null': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'last_updated': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2011, 6, 5, 15, 7, 58, 131791)', 'auto_now_add': 'True', 'blank': 'True'}),
             'lat': ('django.db.models.fields.DecimalField', [], {'max_digits': '16', 'decimal_places': '12'}),
             'lng': ('django.db.models.fields.DecimalField', [], {'max_digits': '16', 'decimal_places': '12'}),
             'neighbourhood': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['playthings.Hood']"}),
-            'type': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+            'reference': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True'}),
+            'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['playthings.Type']"})
+        },
+        'playthings.type': {
+            'Meta': {'ordering': "['name']", 'object_name': 'Type'},
+            'category': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['playthings.Category']", 'null': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
         }
     }
 
