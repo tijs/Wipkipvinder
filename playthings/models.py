@@ -54,6 +54,24 @@ class Type(models.Model):
     def __unicode__(self):
         return self.name
 
+class PlaythingManager(models.Manager):
+    def nearby(self, latitude, longitude, radius, max_results=100, use_miles=False):
+        if use_miles:
+            distance_unit = 3959
+        else:
+            distance_unit = 6371
+
+        from django.db import connection, transaction
+        cursor = connection.cursor()
+
+        sql = """SELECT id, (%f * acos( cos( radians(%f) ) * cos( radians( lat ) ) *
+        cos( radians( lng ) - radians(%f) ) + sin( radians(%f) ) * sin( radians( lat ) ) ) )
+        AS distance FROM playthings_plaything HAVING distance < %d
+        ORDER BY distance LIMIT 0 , %d;""" % (distance_unit, float(latitude), float(longitude), float(latitude), int(radius), max_results)
+        cursor.execute(sql)
+        ids = [row[0] for row in cursor.fetchall()]
+
+        return self.filter(id__in=ids)
 
 class Plaything(models.Model):
     type = models.ForeignKey("Type")
@@ -64,6 +82,7 @@ class Plaything(models.Model):
     neighbourhood = models.ForeignKey("Hood")
     city = models.ForeignKey("City", null=True)
     last_updated = models.DateTimeField(auto_now_add=True, editable=False, default=datetime.now())
+    objects = PlaythingManager()
 
     class Meta:
         unique_together = ('reference', 'city')
