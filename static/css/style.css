@@ -1,0 +1,10 @@
+body { background: #b9e4ec; height: 700px; font-size: 1.1em; }
+
+h1 { font-size: 400%; font-family: 'Carter One', arial, serif; color: #b5510e; }
+p { font-size: 120%; font-family: 'News Cycle', arial, serif; color: #000033; line-height: 26px; text-shadow: 0 2px 1px white; }
+p strong { text-shadow: none; }
+p small { font-size: 90%; text-shadow: none; }
+a { color: #3474c2; }
+
+#main { width: 900px; margin: 40px auto; padding: 50px; border-radius: 10px; background: #e2f0ef url(/static/img/clouds.png) repeat-x 0 bottom; }
+#android { float: right; margin: 10px; }
