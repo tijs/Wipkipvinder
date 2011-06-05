@@ -26,4 +26,4 @@ class PlaythingsHandler(BaseHandler):
         """
         Returns all play equipment within a certain range
         """
-        return Plaything.objects.nearby(lat, lng, km, 50) # limit to 50 results
+        return Plaything.objects.nearby(lat, lng, km, 200) # limit to 200 results

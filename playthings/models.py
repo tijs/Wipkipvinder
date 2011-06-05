@@ -63,11 +63,11 @@ class PlaythingManager(models.Manager):
 
         from django.db import connection, transaction
         cursor = connection.cursor()
-
-        sql = """SELECT id, (%f * acos( cos( radians(%f) ) * cos( radians( lat ) ) *
-        cos( radians( lng ) - radians(%f) ) + sin( radians(%f) ) * sin( radians( lat ) ) ) )
-        AS distance FROM playthings_plaything HAVING distance < %d
-        ORDER BY distance LIMIT 0 , %d;""" % (distance_unit, float(latitude), float(longitude), float(latitude), int(radius), max_results)
+        sql = """SELECT id FROM
+            (SELECT id, reference, lat, lng, address, (%d * acos(cos(radians(%f)) * cos(radians(lat)) *
+            cos(radians(lng) - radians(%f)) + sin(radians(%f)) * sin(radians(lat)))) AS distance
+            FROM playthings_plaything) AS distances WHERE distance < %d ORDER BY distance LIMIT 0, %d""" \
+        % (distance_unit, float(latitude), float(longitude), float(latitude), int(radius), max_results)
         cursor.execute(sql)
         ids = [row[0] for row in cursor.fetchall()]
 
